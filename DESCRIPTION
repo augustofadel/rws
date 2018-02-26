@@ -7,7 +7,7 @@ Authors@R: person("Augusto", "Fadel", email = "augustofadel@gmail.com",
 Maintainer: Augusto Fadel <augustofadel@gmail.com>
 Description: Pacote desenvolvido para conultar lista de CNPJ na base ReceitaWS 
     (IBGE/DPE/GCAD).
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
