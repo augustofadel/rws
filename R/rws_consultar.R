@@ -19,9 +19,13 @@ rws_consultar <- function(file_in,
 
    result <- vector("list", n_cnpj)
    names(result) <- cnpj
-   file_tmp <- file_out %>% str_sub(1, -5) %>% paste0(".rds")
+   file_tmp <- file_out %>% stringr::str_sub(1, -5) %>% paste0(".rds")
 
-   if (!verbose) pb <- txtProgressBar(0, n_cnpj, style = 3)
+   if (!verbose) {
+      cat("\nConsulta iniciada:\n\n")
+      pb <- txtProgressBar(0, n_cnpj, style = 3)
+      pb_cnt <- 1
+   }
    for (i in cnpj) {
       dat_i <- list(dat = NULL, code = 429, msg = "")
       while (dat_i$code == 429) {
@@ -31,19 +35,30 @@ rws_consultar <- function(file_in,
          if (dat_i$code == 429) round(25 * runif(1, 2, 3)) %>% Sys.sleep
       }
       saveRDS(result, file_tmp, compress = comp)
-      if (!verbose) setTxtProgressBar(pb, i)
+      if (!verbose) {
+         setTxtProgressBar(pb, pb_cnt)
+         pb_cnt <- pb_cnt + 1
+      }
    }
    if (!verbose) close(pb)
-   rws_converter(result) %>% write_csv(file_out)
-   if (coalesce(F, as.numeric(Sys.time() - file.info(file_out)$mtime,
-                              units = "hours") < .00015)) {
+   tab <- rws_converter(result)
+   if (is.null(tab)) {
+      cat("\nConsulta concluida.",
+          "\n\nNenhum dos CNPJ fornecidos foi encontrado.\n\n")
       file.remove(file_tmp)
    } else {
-      cat("\nNao foi possivel salvar o arquivo ", file_out,".\n", sep = "")
-      cat("Os dados estao salvos em ", file_tmp, ".\n", sep = "")
-      cat("\nInformacoes de CNAE e quadro societario foram excluidas.\n")
+      readr::write_csv(tab, file_out)
+      if (dplyr::coalesce(F, as.numeric(Sys.time() - file.info(file_out)$mtime,
+                                        units = "hours") < .00015)) {
+         file.remove(file_tmp)
+      } else {
+         cat("\nNao foi possivel salvar o arquivo ", file_out,".\n", sep = "")
+         cat("Os dados estao salvos em ", file_tmp, ".\n", sep = "")
+         cat("\nInformacoes de CNAE e quadro societario foram excluidas.\n")
+      }
+      tot <- sum(!unlist(lapply(result, is.null)))
+      cat("\nConsulta concluida. \n\nForam encontradas informacoes de ",
+          tot, " [", round(tot/n_cnpj), "%] CNPJ.\n\n", sep = "")
    }
-   tot <- sum(!unlist(lapply(result, is.null)))
-   cat("\n\nConsulta concluida. \n\nForam encontradas informacoes de ",
-       tot, " [", round(tot/n_cnpj), "%] CNPJ.\n", sep = "")
+   return(tab)
 }
