@@ -15,5 +15,5 @@ Imports:
     plyr (>= 0.1.3),
     readr (>= 1.1.1),
     stringr (>= 1.2.0),
-    httr (>= 1.3.1)
-@importFrom magrittr %>%
+    httr (>= 1.3.1),
+    @importFrom magrittr %>%
