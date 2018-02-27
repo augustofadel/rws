@@ -20,27 +20,27 @@ ler_cnpj <- function(file_in, delim = NULL) {
 
 # consultar receitaws -----------------------------------------------------
 
-rws_get <- function(i, url, tout) {
+rws_get <- function(i, url, tout, msg_end = "\n") {
 
    aux <- try(httr::GET(paste0(url, i), httr::timeout(tout)), silent = T)
 
    if (attr(aux, "class") == "try-error") {
-      msg <- paste("cnpj:", i, "[nao encontrado]\n")
+      msg <- paste("cnpj:", i, "[nao encontrado]", msg_end)
       return(list(dat = NULL, code = 0, msg = msg))
    } else if (aux$status_code == 429) {
-      msg <- paste("cnpj:", i, "[aguardando...]\n")
+      msg <- paste("cnpj:", i, "[aguardando...]", msg_end)
       return(list(dat = NULL, code = aux$status_code, msg = msg))
    } else if(aux$status_code == 200) {
       dat <- httr::content(aux, as = "parsed")
       if (dat$status == "ERROR") {
-         msg <- paste("cnpj:", i, "[invalido]\n")
+         msg <- paste("cnpj:", i, "[invalido]", msg_end)
          return(list(dat = NULL, code = 0, msg = msg))
       } else {
-         msg <- paste("cnpj:", i, "[coletado]\n")
+         msg <- paste("cnpj:", i, "[coletado]", msg_end)
          return(list(dat = dat, code = aux$status_code, msg = msg))
       }
    } else {
-      msg <- paste("cnpj:", i, "[nao foi possivel coletar]\n")
+      msg <- paste("cnpj:", i, "[nao foi possivel coletar]", msg_end)
       return(list(dat = NULL, code = 0, msg = msg))
    }
 }

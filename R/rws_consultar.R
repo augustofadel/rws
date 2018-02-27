@@ -29,9 +29,11 @@ rws_consultar <- function(file_in,
    for (i in cnpj) {
       dat_i <- list(dat = NULL, code = 429, msg = "")
       while (dat_i$code == 429) {
-         dat_i <- rws_get(i, url, tout)
+         dat_i <- rws_get(i, url, tout, msg_end = "")
          if (!is.null(dat_i$dat)) result[[i]] <- dat_i$dat
-         if (verbose) cat(dat_i$msg)
+         if (verbose) cat(dat_i$msg,
+                          round(which(i == cnpj) / n_cnpj * 100), "%\n",
+                          sep = "")
          if (dat_i$code == 429) round(25 * runif(1, 2, 3)) %>% Sys.sleep
       }
       saveRDS(result, file_tmp, compress = comp)
