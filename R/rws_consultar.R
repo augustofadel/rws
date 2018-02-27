@@ -48,17 +48,17 @@ rws_consultar <- function(file_in,
       file.remove(file_tmp)
    } else {
       readr::write_csv(tab, file_out)
-      if (dplyr::coalesce(F, as.numeric(Sys.time() - file.info(file_out)$mtime,
-                                        units = "hours") < .00015)) {
+      if (dplyr::coalesce(as.numeric(Sys.time() - file.info(file_out)$mtime,
+                                     units = "hours") < .0015, F)) {
          file.remove(file_tmp)
       } else {
          cat("\nNao foi possivel salvar o arquivo ", file_out,".\n", sep = "")
          cat("Os dados estao salvos em ", file_tmp, ".\n", sep = "")
-         cat("\nInformacoes de CNAE e quadro societario foram excluidas.\n")
       }
       tot <- sum(!unlist(lapply(result, is.null)))
-      cat("\nConsulta concluida. \n\nForam encontradas informacoes de ",
-          tot, " [", round(tot/n_cnpj), "%] CNPJ.\n\n", sep = "")
+      cat("\nConsulta concluida. Foram encontradas informacoes de ",
+          tot, " [", round(tot / n_cnpj * 100), "%] CNPJ.\n\n", sep = "")
+      cat("Informacoes de CNAE e quadro societario foram excluidas.\n\n")
    }
    return(tab)
 }

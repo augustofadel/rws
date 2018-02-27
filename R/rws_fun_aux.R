@@ -32,8 +32,13 @@ rws_get <- function(i, url, tout) {
       return(list(dat = NULL, code = aux$status_code, msg = msg))
    } else if(aux$status_code == 200) {
       dat <- httr::content(aux, as = "parsed")
-      msg <- cat("cnpj:", i, "[coletado]\n")
-      return(list(dat = dat, code = aux$status_code, msg = msg))
+      if (dat$status == "ERROR") {
+         msg <- paste("cnpj:", i, "[invalido]\n")
+         return(list(dat = NULL, code = 0, msg = msg))
+      } else {
+         msg <- paste("cnpj:", i, "[coletado]\n")
+         return(list(dat = dat, code = aux$status_code, msg = msg))
+      }
    } else {
       msg <- paste("cnpj:", i, "[nao foi possivel coletar]\n")
       return(list(dat = NULL, code = 0, msg = msg))
@@ -47,7 +52,7 @@ lista <- function(x) { unlist(lapply(x, class)) == "list" }
 
 rws_converter <- function(dat) {
    nnull <- unlist(lapply(dat, is.null))
-   if (any(nnull))
+   if (all(nnull))
       return(NULL)
    tab <- do.call(
       plyr::rbind.fill,
