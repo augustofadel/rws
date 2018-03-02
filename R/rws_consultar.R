@@ -19,7 +19,7 @@ rws_consultar <- function(file_in,
 
    result <- vector("list", n_cnpj)
    names(result) <- cnpj
-   file_tmp <- file_out %>% stringr::str_sub(1, -5) %>% paste0(".rds")
+   file_tmp <- file_out %>% stringr::str_replace("\\..*", "rds")
 
    if (!verbose) {
       cat("\nConsulta iniciada:\n\n")
@@ -49,7 +49,13 @@ rws_consultar <- function(file_in,
           "\n\nNenhum dos CNPJ fornecidos foi encontrado.\n\n")
       file.remove(file_tmp)
    } else {
-      readr::write_csv(tab, file_out)
+      # ext <- file_out %>% stringr::str_extract("\\..*")
+      ext <- tools::file_ext(file_out)
+      if (ext %in% c("xls", "xlsx")) {
+         writexl::write_xlsx(tab, file_out)
+      } else if (ext == "csv") {
+         readr::write_csv(tab, file_out)
+      }
       if (dplyr::coalesce(as.numeric(Sys.time() - file.info(file_out)$mtime,
                                      units = "hours") < .0015, F)) {
          file.remove(file_tmp)
