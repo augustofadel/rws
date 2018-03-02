@@ -87,7 +87,8 @@ rws_converter <- function(dat) {
       dplyr::mutate(
          cnpj = stringr::str_replace_all(cnpj, "[^[:digit:]]", ""),
          cep = stringr::str_replace_all(cep, "[^[:digit:]]", ""),
-         natureza_juridica = stringr::str_replace_all(natureza_juridica, "[^[:digit:]]", "")
+         natureza_juridica = stringr::str_replace_all(natureza_juridica, "[^[:digit:]]", ""),
+         logradouro = stringr::str_replace_all(logradouro, "[[:punct:]]", "")
       )
 
    return(tab)
